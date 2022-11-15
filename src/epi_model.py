@@ -8,44 +8,35 @@ def deriv_SIR(y, t, N, beta,gamma,tau,vacc_eff,vacc_speed,t0,
               vacc_custom = False,
               tau_custom = False):
     S,I,R,V = y
- 
+
     B=beta*np.exp(-t/tau)
- 
-    if t>=t0:
-        vacc=vacc_speed/100
-    else:
-        vacc=0
- 
+
+    vacc = vacc_speed/100 if t>=t0 else 0
     # custom vaccination scheme
     if type(vacc_custom) == list:
         new_time = vacc_custom[0]
         new_speed = vacc_custom[1]
-        
+
         if t<new_time and t>=t0:
             vacc = vacc_speed/100
-        
+
         elif t>=new_time:
             vacc = new_speed/100
-            
+
         else:
             vacc=0
-            
-    # custom Rt scheme        
+
+    # custom Rt scheme
     if type(tau_custom) == list:
         Btime = tau_custom[0]
         Bvalue = tau_custom[1]
-        
-        if t < Btime:
-            B=beta*np.exp(-t/tau)
-        else:
-            B=Bvalue          
 
-
+        B = beta*np.exp(-t/tau) if t < Btime else Bvalue
     dSdt = -(B*I/N)*S - vacc*vacc_eff*S
-    dIdt = (B*S/N)*I - gamma*I 
-    dVdt = vacc*vacc_eff*S 
+    dIdt = (B*S/N)*I - gamma*I
+    dVdt = vacc*vacc_eff*S
     dRdt = gamma*I   
-    
+
     return dSdt, dIdt, dRdt, dVdt
  
 def SIR2(N,beta,gamma,tau,vacc_eff,vacc_speed,t0,I0=1,R0=0,V0=0,
